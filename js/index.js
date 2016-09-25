@@ -1,4 +1,10 @@
 window.onload = function() {
+    var CANVAS_BOX_COL = 256,
+        CANVAS_BOX_WIDTH = 512,
+        CONFIG_BOX_ROW = 32,
+        CANVAS_WIDTH = 256,
+        CANVAS_HEIGHT = 256;
+
     var configBox = document.getElementById('config'),
         items = configBox.children,
         boxWidth = configBox.offsetWidth,
@@ -32,7 +38,7 @@ window.onload = function() {
         console.log(count);
     }
     //初始化配置机
-    configInit(boxWidth, boxHeight, 32);
+    configInit(boxWidth, boxHeight, CONFIG_BOX_ROW);
 
 
     function getConfig() {
@@ -44,75 +50,74 @@ window.onload = function() {
     }
 
     //配置图案事件
-    var DATA1 = [];
     configRender.onclick = function() {
         var data = getConfig(),
-            bigData = init(256, 256, 0.02),
+            bigData = getRandomArr(CANVAS_BOX_COL, 0),
             j = 0,
-            offx = 112;
+            offx = (CANVAS_BOX_COL - CONFIG_BOX_ROW) / 2,
+            confData ;
+        console.log(offx);
         console.log(data.length);
         for (var i = 0, len = data.length; i < len; i++) {
-            if (i % 32 === 0 && i !== 0) j++;
-            bigData[i % 32 + offx][j + offx][0] = +data[i];
+            if (i % CONFIG_BOX_ROW === 0 && i !== 0) {
+                confData =confData+ i % CONFIG_BOX_ROW + offx+(offx-1)*CANVAS_BOX_COL + CANVAS_BOX_COL-CONFIG_BOX_ROW;
+            }else{
+                confData =confData+ i % CONFIG_BOX_ROW + offx+(offx-1)*CANVAS_BOX_COL
+            }
+            // bigData[i % CONFIG_BOX_ROW + offx][j + offx][0] = +data[i];
+            // bigData[i % CONFIG_BOX_ROW + offx + j * CANVAS_BOX_COL] = +data[i];
+            // if(i % CONFIG_BOX_ROW === 0 && i !== 0){
+            //     bigData[ i % CONFIG_BOX_ROW ] = +data[i];
+            // }
+            bigData[confData];
         }
-        DATA1 = data;
+        console.log(j);
         stepCal(bigData);
     };
 
     //随机生成图案事件
     randomRender.onclick = function() {
-        stepCal(init(256, 256, value.value / 100));
+        stepCal(getRandomArr(CANVAS_BOX_COL, value.value / 100));
     };
 
     //autocell 1.0
     var tab = document.getElementById('canvas');
     var tax = canvas.getContext('2d');
-    tab.width = 512;
-    tab.height = 512;
+    tab.width = CANVAS_BOX_WIDTH;
+    tab.height = CANVAS_BOX_WIDTH;
     var width = tab.width,
         height = tab.height;
 
-    function getRandomArr(number, percent) {
+
+    function getRandomArr(rol, percent) {
         var arr = [];
-        for (var i = 0; i < number; i++) {
+        for (var i = 0, len = rol * rol; i < len; i++) {
             arr.push([(Math.random() < percent ? 1 : 0), 0]);
         }
         return arr;
     }
 
-    //初始化矩阵
-    function init(col, row, percent) {
-        var _col = [];
-        for (var i = 0; i < col; i++) {
-            _col[i] = getRandomArr(row, percent);
-        }
-        render(_col);
-        return _col;
-    }
 
-    //根据数据矩阵渲染canvas
     function render(data) {
-        var c = 0,
+        var itemWidth = CANVAS_BOX_WIDTH / CANVAS_BOX_COL,
             itemValue;
         tax.clearRect(0, 0, width, height);
-        for (var i = 0, len1 = data.length; i < len1; i++) {
-            for (var j = 0, len2 = data[i].length; j < len2; j++) {
-                itemValue = data[i][j][0];
-                if (itemValue === 0) {
-                    tax.fillStyle = '#fefdfe';
-                } else if (itemValue === 1) {
-                    tax.fillStyle = '#ebff6b';
-                } else if (itemValue === 2) {
-                    tax.fillStyle = '#ff0505';
-                } else if (itemValue === 3) {
-                    tax.fillStyle = '#750714';
-                } else if (itemValue === 4) {
-                    tax.fillStyle = '#3c46ff';
-                }
-                tax.fillRect(i * width / len1, j * height / len2, width / len1, height / len2);
+        for (var i = 0, len = data.length, j = 0; i < len; i++) {
+            if (i % CANVAS_BOX_COL === 0 && i !== 0) j++;
+            itemValue = data[i][0];
+            if (itemValue === 0) {
+                tax.fillStyle = '#fefdfe';
+            } else if (itemValue === 1) {
+                tax.fillStyle = '#edf';
+            } else if (itemValue === 2) {
+                tax.fillStyle = '#ff0505';
+            } else if (itemValue === 3) {
+                tax.fillStyle = '#750714';
+            } else if (itemValue === 4) {
+                tax.fillStyle = '#3c46ff';
             }
+            tax.fillRect(i % CANVAS_BOX_COL * itemWidth, j * itemWidth, itemWidth, itemWidth);
         }
-        // tax.putImageData(imgdata, 0, 0);
     }
 
 
@@ -120,59 +125,59 @@ window.onload = function() {
     var timer;
 
     function stepCal(data, time) {
+        // console.log(data);
         clearInterval(timer);
         timer = setInterval(function() {
-            var i, j;
-            for (i = 0, len1 = data.length; i < len1; i++) {
-                for (j = 0, len2 = data[i].length; j < len2; j++) {
-                    rule(data, i, j);
-                }
+            for (var i = 0, len = data.length; i < len; i++) {
+                rule(data, i);
             }
-            for (i = 0, len1 = data.length; i < len1; i++) {
-                for (j = 0, len2 = data[i].length; j < len2; j++) {
-                    data[i][j][0] = data[i][j][1];
-                }
+            for (i = 0; i < len; i++) {
+                data[i][0] = data[i][1];
             }
-            // console.log("csz");
+            // console.log(data);
             render(data);
-        }, 400);
+        }, 500);
     }
 
+
     //规则函数
-    function rule(data, x, y) {
-        var count = aroundAlive(data, x, y),
-            itemValue = data[x][y][0];
+    function rule(data, i) {
+        var count = aroundAlive(data, i),
+            itemValue = data[i][0];
         if ((count === 3 || count === 2) && (itemValue !== 0)) {
-            data[x][y][1] = count === 3 ? 3 : 2;
+            data[i][1] = count === 3 ? 3 : 2;
         } else if (count === 3 && itemValue === 0) {
-            data[x][y][1] = 4;
+            data[i][1] = 4;
         } else if ((count > 3 && count < 2) && itemValue !== 0) {
-            data[x][y][1] = 0;
+            data[i][1] = 0;
         } else {
-            data[x][y][1] = 0;
+            data[i][1] = 0;
         }
     }
     //周围生死计数
-    function aroundAlive(data, x, y) {
+    function aroundAlive(data, i) {
         var _arr = [],
             count = 0;
-        if (data[x - 1] !== undefined) {
-            _arr.push(data[x - 1][y - 1] !== undefined ? data[x - 1][y - 1][0] : 0);
-            _arr.push(data[x - 1][y] !== undefined ? data[x - 1][y][0] : 0);
-            _arr.push(data[x - 1][y + 1] !== undefined ? data[x - 1][y + 1][0] : 0);
+        if ((i + 1) % CANVAS_BOX_COL !== 0) {
+            _arr.push(data[i + 1 - CANVAS_BOX_COL] ? data[i + 1 - CANVAS_BOX_COL][0] : 0); //右上
+            _arr.push(data[i + 1] ? data[i + 1][0] : 0); //右
+            _arr.push(data[i + 1 + CANVAS_BOX_COL] ? data[i + 1 + CANVAS_BOX_COL][0] : 0); //右下
         }
-        _arr.push(data[x][y - 1] !== undefined ? data[x][y - 1][0] : 0);
-        _arr.push(data[x][y + 1] !== undefined ? data[x][y + 1][0] : 0);
-        if (data[x + 1] !== undefined) {
-            _arr.push(data[x + 1][y - 1] !== undefined ? data[x + 1][y - 1][0] : 0);
-            _arr.push(data[x + 1][y] !== undefined ? data[x + 1][y][0] : 0);
-            _arr.push(data[x + 1][y + 1] !== undefined ? data[x + 1][y + 1][0] : 0);
+        _arr.push(data[i - CANVAS_BOX_COL] ? data[i - CANVAS_BOX_COL][0] : 0); //上
+        _arr.push(data[i + CANVAS_BOX_COL] ? data[i + CANVAS_BOX_COL][0] : 0); //下
+
+        if (i % CANVAS_BOX_COL !== 0) {
+            _arr.push(data[i - 1 - CANVAS_BOX_COL] ? data[i - 1 - CANVAS_BOX_COL][0] : 0); //左上
+            _arr.push(data[i - 1][0] ? data[i - 1][0] : 0); //左
+            _arr.push(data[i - 1 + CANVAS_BOX_COL] ? data[i - 1 + CANVAS_BOX_COL][0] : 0); //左下
         }
-        for (var i = 0; i < _arr.length; i++) {
-            if (_arr[i] !== 0) {
+        for (var j = 0, len = _arr.length; j < len; j++) {
+            if (_arr[j] !== 0) {
                 count++;
             }
         }
         return count;
     }
+
+
 };
