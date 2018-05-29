@@ -1,0 +1,19 @@
+{
+  "name": "hexcell",
+  "version": "1.0.0",
+  "description": "一个元胞自动机实现  Game of Life</br> ![image](https://github.com/PEDx/HexCell/raw/master/example.png)</br>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PEDx/HexCell.git"
+  },
+  "author": "ped",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PEDx/HexCell/issues"
+  },
+  "homepage": "https://github.com/PEDx/HexCell#readme"
+}
