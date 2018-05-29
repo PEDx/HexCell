@@ -12,12 +12,12 @@
 }
 
 .autocell {
-    width: 1124px;
-    margin: 20px auto;
+    width: 100%;
 }
 
 canvas {
-    float: left;
+    display: inline-block;
+    margin: 0 auto;
     border: 2px solid #222;
     border-radius: 6px;
 }
